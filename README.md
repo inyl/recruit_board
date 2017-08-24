@@ -2,8 +2,23 @@
 
 > 구직사이트 몰래 보려고 하루만에 날림으로 만듬. 근데 소스가 공개되면 몰래가 아니잖아?...
 
+
 ![](static/screenshot.png)
 
+## specification
+### client
+- electron
+- electron-vue
+- vue-material
+
+### server
+- aws lambda
+- aws api gateway
+- dynamoDB
+
+### batch
+- python 3.5
+- scrapy
 
 #### Build Setup
 
