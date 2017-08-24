@@ -11,6 +11,7 @@
 - electron-vue
 - vue-material
 
+나머지는 조금 애매해서 client만 공개
 ### server
 - aws lambda
 - aws api gateway
