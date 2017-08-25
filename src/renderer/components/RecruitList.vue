@@ -2,6 +2,7 @@
     <div id="wrapper">
         <main>
             <md-button @click="getList"  class="md-raised md-primary">리푸레쉬</md-button>
+            <span>count : {{orderedItems.length}}</span>
             <div>
                 <md-table md-sort="wdate" @sort="reOrder">
                     <md-table-header>
@@ -12,20 +13,24 @@
                             <md-table-head md-sort-by="duedate">duedate</md-table-head>
                             <md-table-head>location</md-table-head>
                             <md-table-head>position</md-table-head>
-                            <md-table-head md-sort-by="wdate">wdate</md-table-head>
+                            <md-table-head md-sort-by="wdate">수정일</md-table-head>
+                            <md-table-head md-sort-by="rdate">등록일</md-table-head>
                         </md-table-row>
                     </md-table-header>
                     <md-table-body>
                     <md-table-row v-for="row in orderedItems" :key="row.id">
-                        <md-table-cell><md-tooltip>{{row.text}}</md-tooltip><img :src="row.img" width="120"></md-table-cell>
-                        <md-table-cell><span @click="open(row.url)">{{row.title}}</span></md-table-cell>
+                        <md-table-cell><img :src="row.img" width="120"/></md-table-cell>
+                        <md-table-cell @click="open(row.url)" style="cursor: pointer" class="has-ripple">
+                            <md-ink-ripple /><span @click="open(row.url)">{{row.title}}</span>
+                        </md-table-cell>
                         <md-table-cell>{{row.company}}</md-table-cell>
                         <md-table-cell>{{row.duedate}}</md-table-cell>
                         <md-table-cell>{{row.location}}</md-table-cell>
                         <md-table-cell>{{row.position}}</md-table-cell>
-                        <md-table-cell>{{row.wdate}}</md-table-cell>
+                        <md-table-cell>{{row.wdate}} <span v-if="isDiffDays(row.wdate)">(current)</span></md-table-cell>
+                        <md-table-cell>{{row.rdate}} </md-table-cell>
                         <md-table-cell>
-                            <md-button @click="openDialog(row.text)">info</md-button>
+                            <div><md-button @click="openDialog(row.text)" class="md-icon-button md-raised md-primary" md-theme="teal"><md-icon>message</md-icon></md-button></div>
                         </md-table-cell>
                     </md-table-row>
                 </md-table-body>
@@ -37,8 +42,12 @@
 
 <script>
     import _ from 'lodash'
+    import moment from 'moment'
     export default {
         name : 'RecruitList',
+        created : function () {
+            this.getList();
+        },
         data : () => ({
             list : [],
             orderField : "wdate",
@@ -81,6 +90,14 @@
             },
             closeDialog (ref) {
                 this.$refs[ref].close()
+            },
+            /**
+             * 날짜가 현재날자랑 같은지 비교한다
+             */
+            isDiffDays (day) {
+                const diffDay = moment(day);
+                const now = moment();
+                return !now.diff(diffDay, 'days');
             },
             /**
              * 정렬버튼 클릭시 이벤트 함수
