@@ -18,17 +18,15 @@
                     <md-table-body>
                     <md-table-row v-for="row in orderedItems" :key="row.id">
                         <md-table-cell><md-tooltip>{{row.text}}</md-tooltip><img :src="row.img" width="120"></md-table-cell>
-                        <md-table-cell><button @click="open(row.url)">{{row.title}}</button></md-table-cell>
+                        <md-table-cell><span @click="open(row.url)">{{row.title}}</span></md-table-cell>
                         <md-table-cell>{{row.company}}</md-table-cell>
                         <md-table-cell>{{row.duedate}}</md-table-cell>
                         <md-table-cell>{{row.location}}</md-table-cell>
                         <md-table-cell>{{row.position}}</md-table-cell>
                         <md-table-cell>{{row.wdate}}</md-table-cell>
                         <md-table-cell>
-                            <md-dialog-alert
-                                :md-content="row.text" ref="row.id"></md-dialog-alert>
+                            <md-button @click="openDialog(row.text)">info</md-button>
                         </md-table-cell>
-                        <md-button @click="openDialog(row.id)">info</md-button>
                     </md-table-row>
                 </md-table-body>
                 </md-table>
@@ -38,18 +36,14 @@
 </template>
 
 <script>
-    import axios from 'axios'
     import _ from 'lodash'
     export default {
         name : 'RecruitList',
-        data : function() {
-            return {
-                list : [],
-                orderField : "wdate",
-                direction : "desc",
-                apikey : "" // api-key. 소스상에는 우선 가려둠
-            };
-        },
+        data : () => ({
+            list : [],
+            orderField : "wdate",
+            direction : "desc"
+        }),
         computed: {
             orderedItems () {
                 // vue material 버그로 정렬이 제대로 안동작해서 다르게 처리함. 이거도 default아이콘등과 연동이 안되서 문제임
@@ -62,9 +56,9 @@
              */
             getList () {
                 let _self = this;
-                axios.get('https://y0qji6ydsk.execute-api.ap-northeast-2.amazonaws.com/dev/micro_test', {
+                this.$http.get('https://y0qji6ydsk.execute-api.ap-northeast-2.amazonaws.com/dev/micro_test', {
                     method: 'get',
-                    headers : {'Access-Control-Allow-Origin': '*', 'x-api-key': _self.apikey}
+                    headers : {'Access-Control-Allow-Origin': '*', 'x-api-key': this.$apiKey}
                 }).then(function(response){
                     _self.list = response.data.Items;
                 });
@@ -74,10 +68,19 @@
              * @param link
              */
             open (link) {
-                require('electron').shell.openExternal(link)
+                require('electron').shell.openExternal(link);
             },
-            openDialog (ref) {
-                this.$refs[ref].open()
+            openDialog (text) {
+                try {
+                    const {dialog} = require('electron').remote;
+                    dialog.showMessageBox({message : text});
+                } catch (ex) {
+                    alert(ex);
+                }
+
+            },
+            closeDialog (ref) {
+                this.$refs[ref].close()
             },
             /**
              * 정렬버튼 클릭시 이벤트 함수
