@@ -1,8 +1,10 @@
 <template>
     <div id="wrapper">
         <main>
-            <md-button @click="getList"  class="md-raised md-primary">리푸레쉬</md-button>
-            <span>count : {{orderedItems.length}}</span>
+            <md-progress md-indeterminate v-show="isLoading"></md-progress>
+            <md-button @click="getList"  class="md-raised md-primary">
+                리푸레쉬</md-button>
+            <span class="md-subheading">count : {{orderedItems.length}}</span>
             <div>
                 <md-table md-sort="wdate" @sort="reOrder">
                     <md-table-header>
@@ -48,11 +50,14 @@
         created : function () {
             this.getList();
         },
-        data : () => ({
-            list : [],
-            orderField : "wdate",
-            direction : "desc"
-        }),
+        data : function() {
+            return {
+                list : [],
+                orderField : "wdate",
+                direction : "desc",
+                isLoading : false
+            }
+        },
         computed: {
             orderedItems () {
                 // vue material 버그로 정렬이 제대로 안동작해서 다르게 처리함. 이거도 default아이콘등과 연동이 안되서 문제임
@@ -65,10 +70,12 @@
              */
             getList () {
                 let _self = this;
+                this.isLoading = true;
                 this.$http.get('https://y0qji6ydsk.execute-api.ap-northeast-2.amazonaws.com/dev/micro_test', {
                     method: 'get',
                     headers : {'Access-Control-Allow-Origin': '*', 'x-api-key': this.$apiKey}
                 }).then(function(response){
+                    _self.isLoading = false;
                     _self.list = response.data.Items;
                 });
             },
